@@ -1,0 +1,38 @@
+{
+package parser
+
+func toAnySlice(v any) []any {
+    if v == nil {
+        return nil
+    }
+    return v.([]any)
+}
+}
+
+PROGRAM <- i:INTRODUCTORY_STMT EOF {
+    return &Program{
+        IntroductoryStmt: i.(IntroductoryStmt),
+    }, nil
+}
+
+INTRODUCTORY_STMT <- r:REPORT {
+    return r.(*ReportStmt), nil
+}
+
+REPORT <- "REPORT" _ ident:REPORT_IDENTIFIER "." {
+    return &ReportStmt{
+        Name: ident.(string),
+    }, nil
+}
+
+REPORT_IDENTIFIER <- ident:IDENTIFIER {
+    return ident.(string), nil
+}
+
+IDENTIFIER <- [a-zA-Z] [_a-zA-Z0-9]* {
+    return string(c.text), nil
+}
+
+_ <- [ \t\r]*
+
+EOF <- !.
