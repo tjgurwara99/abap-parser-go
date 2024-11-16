@@ -27,11 +27,11 @@ func toAnySlice(v any) []any {
 var g = &grammar{
 	rules: []*rule{
 		{
-			name: "PROGRAM",
+			name: "Program",
 			pos:  position{line: 12, col: 1, offset: 118},
 			expr: &actionExpr{
 				pos: position{line: 12, col: 12, offset: 129},
-				run: (*parser).callonPROGRAM1,
+				run: (*parser).callonProgram1,
 				expr: &seqExpr{
 					pos: position{line: 12, col: 12, offset: 129},
 					exprs: []any{
@@ -40,11 +40,11 @@ var g = &grammar{
 							label: "i",
 							expr: &ruleRefExpr{
 								pos:  position{line: 12, col: 14, offset: 131},
-								name: "INTRODUCTORY_STMT",
+								name: "IntroductoryStmt",
 							},
 						},
 						&ruleRefExpr{
-							pos:  position{line: 12, col: 32, offset: 149},
+							pos:  position{line: 12, col: 31, offset: 148},
 							name: "EOF",
 						},
 					},
@@ -52,50 +52,50 @@ var g = &grammar{
 			},
 		},
 		{
-			name: "INTRODUCTORY_STMT",
-			pos:  position{line: 18, col: 1, offset: 238},
+			name: "IntroductoryStmt",
+			pos:  position{line: 18, col: 1, offset: 237},
 			expr: &actionExpr{
-				pos: position{line: 18, col: 22, offset: 259},
-				run: (*parser).callonINTRODUCTORY_STMT1,
+				pos: position{line: 18, col: 21, offset: 257},
+				run: (*parser).callonIntroductoryStmt1,
 				expr: &labeledExpr{
-					pos:   position{line: 18, col: 22, offset: 259},
+					pos:   position{line: 18, col: 21, offset: 257},
 					label: "r",
 					expr: &ruleRefExpr{
-						pos:  position{line: 18, col: 24, offset: 261},
-						name: "REPORT",
+						pos:  position{line: 18, col: 23, offset: 259},
+						name: "Report",
 					},
 				},
 			},
 		},
 		{
-			name: "REPORT",
-			pos:  position{line: 22, col: 1, offset: 305},
+			name: "Report",
+			pos:  position{line: 22, col: 1, offset: 303},
 			expr: &actionExpr{
-				pos: position{line: 22, col: 11, offset: 315},
-				run: (*parser).callonREPORT1,
+				pos: position{line: 22, col: 11, offset: 313},
+				run: (*parser).callonReport1,
 				expr: &seqExpr{
-					pos: position{line: 22, col: 11, offset: 315},
+					pos: position{line: 22, col: 11, offset: 313},
 					exprs: []any{
 						&litMatcher{
-							pos:        position{line: 22, col: 11, offset: 315},
+							pos:        position{line: 22, col: 11, offset: 313},
 							val:        "REPORT",
 							ignoreCase: false,
 							want:       "\"REPORT\"",
 						},
 						&ruleRefExpr{
-							pos:  position{line: 22, col: 20, offset: 324},
+							pos:  position{line: 22, col: 20, offset: 322},
 							name: "_",
 						},
 						&labeledExpr{
-							pos:   position{line: 22, col: 22, offset: 326},
+							pos:   position{line: 22, col: 22, offset: 324},
 							label: "ident",
 							expr: &ruleRefExpr{
-								pos:  position{line: 22, col: 28, offset: 332},
-								name: "REPORT_IDENTIFIER",
+								pos:  position{line: 22, col: 28, offset: 330},
+								name: "Ident",
 							},
 						},
 						&litMatcher{
-							pos:        position{line: 22, col: 46, offset: 350},
+							pos:        position{line: 22, col: 34, offset: 336},
 							val:        ".",
 							ignoreCase: false,
 							want:       "\".\"",
@@ -105,41 +105,25 @@ var g = &grammar{
 			},
 		},
 		{
-			name: "REPORT_IDENTIFIER",
-			pos:  position{line: 28, col: 1, offset: 424},
+			name: "Ident",
+			pos:  position{line: 28, col: 1, offset: 410},
 			expr: &actionExpr{
-				pos: position{line: 28, col: 22, offset: 445},
-				run: (*parser).callonREPORT_IDENTIFIER1,
-				expr: &labeledExpr{
-					pos:   position{line: 28, col: 22, offset: 445},
-					label: "ident",
-					expr: &ruleRefExpr{
-						pos:  position{line: 28, col: 28, offset: 451},
-						name: "IDENTIFIER",
-					},
-				},
-			},
-		},
-		{
-			name: "IDENTIFIER",
-			pos:  position{line: 32, col: 1, offset: 498},
-			expr: &actionExpr{
-				pos: position{line: 32, col: 15, offset: 512},
-				run: (*parser).callonIDENTIFIER1,
+				pos: position{line: 28, col: 10, offset: 419},
+				run: (*parser).callonIdent1,
 				expr: &seqExpr{
-					pos: position{line: 32, col: 15, offset: 512},
+					pos: position{line: 28, col: 10, offset: 419},
 					exprs: []any{
 						&charClassMatcher{
-							pos:        position{line: 32, col: 15, offset: 512},
+							pos:        position{line: 28, col: 10, offset: 419},
 							val:        "[a-zA-Z]",
 							ranges:     []rune{'a', 'z', 'A', 'Z'},
 							ignoreCase: false,
 							inverted:   false,
 						},
 						&zeroOrMoreExpr{
-							pos: position{line: 32, col: 24, offset: 521},
+							pos: position{line: 28, col: 19, offset: 428},
 							expr: &charClassMatcher{
-								pos:        position{line: 32, col: 24, offset: 521},
+								pos:        position{line: 28, col: 19, offset: 428},
 								val:        "[_a-zA-Z0-9]",
 								chars:      []rune{'_'},
 								ranges:     []rune{'a', 'z', 'A', 'Z', '0', '9'},
@@ -153,11 +137,11 @@ var g = &grammar{
 		},
 		{
 			name: "_",
-			pos:  position{line: 36, col: 1, offset: 571},
+			pos:  position{line: 32, col: 1, offset: 478},
 			expr: &zeroOrMoreExpr{
-				pos: position{line: 36, col: 6, offset: 576},
+				pos: position{line: 32, col: 6, offset: 483},
 				expr: &charClassMatcher{
-					pos:        position{line: 36, col: 6, offset: 576},
+					pos:        position{line: 32, col: 6, offset: 483},
 					val:        "[ \\t\\r]",
 					chars:      []rune{' ', '\t', '\r'},
 					ignoreCase: false,
@@ -167,69 +151,59 @@ var g = &grammar{
 		},
 		{
 			name: "EOF",
-			pos:  position{line: 38, col: 1, offset: 586},
+			pos:  position{line: 34, col: 1, offset: 493},
 			expr: &notExpr{
-				pos: position{line: 38, col: 8, offset: 593},
+				pos: position{line: 34, col: 8, offset: 500},
 				expr: &anyMatcher{
-					line: 38, col: 9, offset: 594,
+					line: 34, col: 9, offset: 501,
 				},
 			},
 		},
 	},
 }
 
-func (c *current) onPROGRAM1(i any) (any, error) {
+func (c *current) onProgram1(i any) (any, error) {
 	return &Program{
 		IntroductoryStmt: i.(IntroductoryStmt),
 	}, nil
 }
 
-func (p *parser) callonPROGRAM1() (any, error) {
+func (p *parser) callonProgram1() (any, error) {
 	stack := p.vstack[len(p.vstack)-1]
 	_ = stack
-	return p.cur.onPROGRAM1(stack["i"])
+	return p.cur.onProgram1(stack["i"])
 }
 
-func (c *current) onINTRODUCTORY_STMT1(r any) (any, error) {
+func (c *current) onIntroductoryStmt1(r any) (any, error) {
 	return r.(*ReportStmt), nil
 }
 
-func (p *parser) callonINTRODUCTORY_STMT1() (any, error) {
+func (p *parser) callonIntroductoryStmt1() (any, error) {
 	stack := p.vstack[len(p.vstack)-1]
 	_ = stack
-	return p.cur.onINTRODUCTORY_STMT1(stack["r"])
+	return p.cur.onIntroductoryStmt1(stack["r"])
 }
 
-func (c *current) onREPORT1(ident any) (any, error) {
+func (c *current) onReport1(ident any) (any, error) {
 	return &ReportStmt{
 		Name: ident.(string),
 	}, nil
 }
 
-func (p *parser) callonREPORT1() (any, error) {
+func (p *parser) callonReport1() (any, error) {
 	stack := p.vstack[len(p.vstack)-1]
 	_ = stack
-	return p.cur.onREPORT1(stack["ident"])
+	return p.cur.onReport1(stack["ident"])
 }
 
-func (c *current) onREPORT_IDENTIFIER1(ident any) (any, error) {
-	return ident.(string), nil
-}
-
-func (p *parser) callonREPORT_IDENTIFIER1() (any, error) {
-	stack := p.vstack[len(p.vstack)-1]
-	_ = stack
-	return p.cur.onREPORT_IDENTIFIER1(stack["ident"])
-}
-
-func (c *current) onIDENTIFIER1() (any, error) {
+func (c *current) onIdent1() (any, error) {
 	return string(c.text), nil
 }
 
-func (p *parser) callonIDENTIFIER1() (any, error) {
+func (p *parser) callonIdent1() (any, error) {
 	stack := p.vstack[len(p.vstack)-1]
 	_ = stack
-	return p.cur.onIDENTIFIER1()
+	return p.cur.onIdent1()
 }
 
 var (
