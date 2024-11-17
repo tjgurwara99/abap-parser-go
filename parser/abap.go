@@ -28,7 +28,11 @@ type Program struct {
 }
 
 type ReportStmt struct {
-	Name                 string
+	Name      string
+	Additions *ReportAdditions
+}
+
+type ReportAdditions struct {
 	MsgID                *string
 	ReducedFunctionality *bool
 	ListOptions          *ListOptions

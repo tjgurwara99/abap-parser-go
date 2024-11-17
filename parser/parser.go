@@ -17,34 +17,60 @@ import (
 	"unicode/utf8"
 )
 
-func toAnySlice(v any) []any {
+func toAnySlice[T any](v any) []T {
 	if v == nil {
 		return nil
 	}
-	return v.([]any)
+	var data []T
+	for _, a := range v.([]any) {
+		data = append(data, a.(T))
+	}
+	return data
+}
+
+func mergeListOptions(opts []*ListOptions) *ListOptions {
+	if opts == nil {
+		return nil
+	}
+	var mainListOption ListOptions
+	for _, o := range opts {
+		if o.NoStandardPageHeading != nil {
+			mainListOption.NoStandardPageHeading = o.NoStandardPageHeading
+		}
+		if o.LineSize != nil {
+			mainListOption.LineSize = o.LineSize
+		}
+		if o.PageLines != nil {
+			mainListOption.PageLines = o.PageLines
+		}
+		if o.FooterLines != nil {
+			mainListOption.FooterLines = o.FooterLines
+		}
+	}
+	return &mainListOption
 }
 
 var g = &grammar{
 	rules: []*rule{
 		{
 			name: "Program",
-			pos:  position{line: 12, col: 1, offset: 118},
+			pos:  position{line: 39, col: 1, offset: 826},
 			expr: &actionExpr{
-				pos: position{line: 12, col: 12, offset: 129},
+				pos: position{line: 39, col: 12, offset: 837},
 				run: (*parser).callonProgram1,
 				expr: &seqExpr{
-					pos: position{line: 12, col: 12, offset: 129},
+					pos: position{line: 39, col: 12, offset: 837},
 					exprs: []any{
 						&labeledExpr{
-							pos:   position{line: 12, col: 12, offset: 129},
+							pos:   position{line: 39, col: 12, offset: 837},
 							label: "i",
 							expr: &ruleRefExpr{
-								pos:  position{line: 12, col: 14, offset: 131},
+								pos:  position{line: 39, col: 14, offset: 839},
 								name: "IntroductoryStmt",
 							},
 						},
 						&ruleRefExpr{
-							pos:  position{line: 12, col: 31, offset: 148},
+							pos:  position{line: 39, col: 31, offset: 856},
 							name: "EOF",
 						},
 					},
@@ -53,15 +79,15 @@ var g = &grammar{
 		},
 		{
 			name: "IntroductoryStmt",
-			pos:  position{line: 18, col: 1, offset: 237},
+			pos:  position{line: 45, col: 1, offset: 945},
 			expr: &actionExpr{
-				pos: position{line: 18, col: 21, offset: 257},
+				pos: position{line: 45, col: 21, offset: 965},
 				run: (*parser).callonIntroductoryStmt1,
 				expr: &labeledExpr{
-					pos:   position{line: 18, col: 21, offset: 257},
+					pos:   position{line: 45, col: 21, offset: 965},
 					label: "r",
 					expr: &ruleRefExpr{
-						pos:  position{line: 18, col: 23, offset: 259},
+						pos:  position{line: 45, col: 23, offset: 967},
 						name: "Report",
 					},
 				},
@@ -69,33 +95,44 @@ var g = &grammar{
 		},
 		{
 			name: "Report",
-			pos:  position{line: 22, col: 1, offset: 303},
+			pos:  position{line: 49, col: 1, offset: 1011},
 			expr: &actionExpr{
-				pos: position{line: 22, col: 11, offset: 313},
+				pos: position{line: 49, col: 11, offset: 1021},
 				run: (*parser).callonReport1,
 				expr: &seqExpr{
-					pos: position{line: 22, col: 11, offset: 313},
+					pos: position{line: 49, col: 11, offset: 1021},
 					exprs: []any{
 						&litMatcher{
-							pos:        position{line: 22, col: 11, offset: 313},
+							pos:        position{line: 49, col: 11, offset: 1021},
 							val:        "REPORT",
 							ignoreCase: false,
 							want:       "\"REPORT\"",
 						},
 						&ruleRefExpr{
-							pos:  position{line: 22, col: 20, offset: 322},
+							pos:  position{line: 49, col: 20, offset: 1030},
 							name: "_",
 						},
 						&labeledExpr{
-							pos:   position{line: 22, col: 22, offset: 324},
+							pos:   position{line: 49, col: 22, offset: 1032},
 							label: "ident",
 							expr: &ruleRefExpr{
-								pos:  position{line: 22, col: 28, offset: 330},
+								pos:  position{line: 49, col: 28, offset: 1038},
 								name: "Ident",
 							},
 						},
+						&labeledExpr{
+							pos:   position{line: 49, col: 34, offset: 1044},
+							label: "ra",
+							expr: &zeroOrMoreExpr{
+								pos: position{line: 49, col: 37, offset: 1047},
+								expr: &ruleRefExpr{
+									pos:  position{line: 49, col: 37, offset: 1047},
+									name: "ReportAdditions",
+								},
+							},
+						},
 						&litMatcher{
-							pos:        position{line: 22, col: 34, offset: 336},
+							pos:        position{line: 49, col: 54, offset: 1064},
 							val:        ".",
 							ignoreCase: false,
 							want:       "\".\"",
@@ -105,25 +142,315 @@ var g = &grammar{
 			},
 		},
 		{
-			name: "Ident",
-			pos:  position{line: 28, col: 1, offset: 410},
+			name: "ReportAdditions",
+			pos:  position{line: 76, col: 1, offset: 1818},
+			expr: &choiceExpr{
+				pos: position{line: 76, col: 20, offset: 1837},
+				alternatives: []any{
+					&actionExpr{
+						pos: position{line: 76, col: 20, offset: 1837},
+						run: (*parser).callonReportAdditions2,
+						expr: &labeledExpr{
+							pos:   position{line: 76, col: 20, offset: 1837},
+							label: "lo",
+							expr: &oneOrMoreExpr{
+								pos: position{line: 76, col: 23, offset: 1840},
+								expr: &ruleRefExpr{
+									pos:  position{line: 76, col: 23, offset: 1840},
+									name: "ListOptions",
+								},
+							},
+						},
+					},
+					&actionExpr{
+						pos: position{line: 96, col: 5, offset: 2473},
+						run: (*parser).callonReportAdditions6,
+						expr: &seqExpr{
+							pos: position{line: 96, col: 5, offset: 2473},
+							exprs: []any{
+								&ruleRefExpr{
+									pos:  position{line: 96, col: 5, offset: 2473},
+									name: "_",
+								},
+								&labeledExpr{
+									pos:   position{line: 96, col: 7, offset: 2475},
+									label: "msg",
+									expr: &ruleRefExpr{
+										pos:  position{line: 96, col: 11, offset: 2479},
+										name: "MessageID",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "MessageID",
+			pos:  position{line: 103, col: 1, offset: 2575},
 			expr: &actionExpr{
-				pos: position{line: 28, col: 10, offset: 419},
-				run: (*parser).callonIdent1,
+				pos: position{line: 103, col: 14, offset: 2588},
+				run: (*parser).callonMessageID1,
 				expr: &seqExpr{
-					pos: position{line: 28, col: 10, offset: 419},
+					pos: position{line: 103, col: 14, offset: 2588},
+					exprs: []any{
+						&litMatcher{
+							pos:        position{line: 103, col: 14, offset: 2588},
+							val:        "MESSAGE-ID",
+							ignoreCase: false,
+							want:       "\"MESSAGE-ID\"",
+						},
+						&ruleRefExpr{
+							pos:  position{line: 103, col: 27, offset: 2601},
+							name: "_",
+						},
+						&labeledExpr{
+							pos:   position{line: 103, col: 29, offset: 2603},
+							label: "ident",
+							expr: &ruleRefExpr{
+								pos:  position{line: 103, col: 35, offset: 2609},
+								name: "Ident",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "ListOptions",
+			pos:  position{line: 107, col: 1, offset: 2651},
+			expr: &choiceExpr{
+				pos: position{line: 107, col: 16, offset: 2666},
+				alternatives: []any{
+					&actionExpr{
+						pos: position{line: 107, col: 16, offset: 2666},
+						run: (*parser).callonListOptions2,
+						expr: &seqExpr{
+							pos: position{line: 107, col: 16, offset: 2666},
+							exprs: []any{
+								&ruleRefExpr{
+									pos:  position{line: 107, col: 16, offset: 2666},
+									name: "_",
+								},
+								&labeledExpr{
+									pos:   position{line: 107, col: 18, offset: 2668},
+									label: "h",
+									expr: &litMatcher{
+										pos:        position{line: 107, col: 20, offset: 2670},
+										val:        "NO STANDARD PAGE HEADING",
+										ignoreCase: false,
+										want:       "\"NO STANDARD PAGE HEADING\"",
+									},
+								},
+							},
+						},
+					},
+					&actionExpr{
+						pos: position{line: 112, col: 5, offset: 2792},
+						run: (*parser).callonListOptions7,
+						expr: &seqExpr{
+							pos: position{line: 112, col: 5, offset: 2792},
+							exprs: []any{
+								&ruleRefExpr{
+									pos:  position{line: 112, col: 5, offset: 2792},
+									name: "_",
+								},
+								&labeledExpr{
+									pos:   position{line: 112, col: 7, offset: 2794},
+									label: "ls",
+									expr: &ruleRefExpr{
+										pos:  position{line: 112, col: 10, offset: 2797},
+										name: "LineSize",
+									},
+								},
+							},
+						},
+					},
+					&actionExpr{
+						pos: position{line: 117, col: 5, offset: 2892},
+						run: (*parser).callonListOptions12,
+						expr: &seqExpr{
+							pos: position{line: 117, col: 5, offset: 2892},
+							exprs: []any{
+								&ruleRefExpr{
+									pos:  position{line: 117, col: 5, offset: 2892},
+									name: "_",
+								},
+								&labeledExpr{
+									pos:   position{line: 117, col: 7, offset: 2894},
+									label: "lc",
+									expr: &ruleRefExpr{
+										pos:  position{line: 117, col: 10, offset: 2897},
+										name: "LineCount",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "LineCount",
+			pos:  position{line: 125, col: 1, offset: 3058},
+			expr: &actionExpr{
+				pos: position{line: 125, col: 14, offset: 3071},
+				run: (*parser).callonLineCount1,
+				expr: &seqExpr{
+					pos: position{line: 125, col: 14, offset: 3071},
+					exprs: []any{
+						&litMatcher{
+							pos:        position{line: 125, col: 14, offset: 3071},
+							val:        "LINE-COUNT",
+							ignoreCase: false,
+							want:       "\"LINE-COUNT\"",
+						},
+						&ruleRefExpr{
+							pos:  position{line: 125, col: 27, offset: 3084},
+							name: "_",
+						},
+						&labeledExpr{
+							pos:   position{line: 125, col: 29, offset: 3086},
+							label: "pl",
+							expr: &ruleRefExpr{
+								pos:  position{line: 125, col: 32, offset: 3089},
+								name: "DecimalDigit",
+							},
+						},
+						&ruleRefExpr{
+							pos:  position{line: 125, col: 45, offset: 3102},
+							name: "_",
+						},
+						&labeledExpr{
+							pos:   position{line: 125, col: 47, offset: 3104},
+							label: "fl",
+							expr: &zeroOrOneExpr{
+								pos: position{line: 125, col: 50, offset: 3107},
+								expr: &ruleRefExpr{
+									pos:  position{line: 125, col: 50, offset: 3107},
+									name: "FooterLine",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "FooterLine",
+			pos:  position{line: 138, col: 1, offset: 3303},
+			expr: &actionExpr{
+				pos: position{line: 138, col: 15, offset: 3317},
+				run: (*parser).callonFooterLine1,
+				expr: &seqExpr{
+					pos: position{line: 138, col: 15, offset: 3317},
+					exprs: []any{
+						&litMatcher{
+							pos:        position{line: 138, col: 15, offset: 3317},
+							val:        "(",
+							ignoreCase: false,
+							want:       "\"(\"",
+						},
+						&labeledExpr{
+							pos:   position{line: 138, col: 19, offset: 3321},
+							label: "d",
+							expr: &ruleRefExpr{
+								pos:  position{line: 138, col: 21, offset: 3323},
+								name: "DecimalDigit",
+							},
+						},
+						&litMatcher{
+							pos:        position{line: 138, col: 34, offset: 3336},
+							val:        ")",
+							ignoreCase: false,
+							want:       "\")\"",
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "LineSize",
+			pos:  position{line: 142, col: 1, offset: 3363},
+			expr: &actionExpr{
+				pos: position{line: 142, col: 13, offset: 3375},
+				run: (*parser).callonLineSize1,
+				expr: &seqExpr{
+					pos: position{line: 142, col: 13, offset: 3375},
+					exprs: []any{
+						&litMatcher{
+							pos:        position{line: 142, col: 13, offset: 3375},
+							val:        "LINE-SIZE",
+							ignoreCase: false,
+							want:       "\"LINE-SIZE\"",
+						},
+						&ruleRefExpr{
+							pos:  position{line: 142, col: 25, offset: 3387},
+							name: "_",
+						},
+						&labeledExpr{
+							pos:   position{line: 142, col: 27, offset: 3389},
+							label: "d",
+							expr: &ruleRefExpr{
+								pos:  position{line: 142, col: 29, offset: 3391},
+								name: "DecimalDigit",
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "DecimalDigit",
+			pos:  position{line: 146, col: 1, offset: 3427},
+			expr: &actionExpr{
+				pos: position{line: 146, col: 17, offset: 3443},
+				run: (*parser).callonDecimalDigit1,
+				expr: &seqExpr{
+					pos: position{line: 146, col: 17, offset: 3443},
 					exprs: []any{
 						&charClassMatcher{
-							pos:        position{line: 28, col: 10, offset: 419},
+							pos:        position{line: 146, col: 17, offset: 3443},
+							val:        "[1-9]",
+							ranges:     []rune{'1', '9'},
+							ignoreCase: false,
+							inverted:   false,
+						},
+						&zeroOrMoreExpr{
+							pos: position{line: 146, col: 23, offset: 3449},
+							expr: &charClassMatcher{
+								pos:        position{line: 146, col: 23, offset: 3449},
+								val:        "[0-9]",
+								ranges:     []rune{'0', '9'},
+								ignoreCase: false,
+								inverted:   false,
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Ident",
+			pos:  position{line: 150, col: 1, offset: 3501},
+			expr: &actionExpr{
+				pos: position{line: 150, col: 10, offset: 3510},
+				run: (*parser).callonIdent1,
+				expr: &seqExpr{
+					pos: position{line: 150, col: 10, offset: 3510},
+					exprs: []any{
+						&charClassMatcher{
+							pos:        position{line: 150, col: 10, offset: 3510},
 							val:        "[a-zA-Z]",
 							ranges:     []rune{'a', 'z', 'A', 'Z'},
 							ignoreCase: false,
 							inverted:   false,
 						},
 						&zeroOrMoreExpr{
-							pos: position{line: 28, col: 19, offset: 428},
+							pos: position{line: 150, col: 19, offset: 3519},
 							expr: &charClassMatcher{
-								pos:        position{line: 28, col: 19, offset: 428},
+								pos:        position{line: 150, col: 19, offset: 3519},
 								val:        "[_a-zA-Z0-9]",
 								chars:      []rune{'_'},
 								ranges:     []rune{'a', 'z', 'A', 'Z', '0', '9'},
@@ -137,11 +464,11 @@ var g = &grammar{
 		},
 		{
 			name: "_",
-			pos:  position{line: 32, col: 1, offset: 478},
+			pos:  position{line: 154, col: 1, offset: 3569},
 			expr: &zeroOrMoreExpr{
-				pos: position{line: 32, col: 6, offset: 483},
+				pos: position{line: 154, col: 6, offset: 3574},
 				expr: &charClassMatcher{
-					pos:        position{line: 32, col: 6, offset: 483},
+					pos:        position{line: 154, col: 6, offset: 3574},
 					val:        "[ \\t\\r]",
 					chars:      []rune{' ', '\t', '\r'},
 					ignoreCase: false,
@@ -151,11 +478,11 @@ var g = &grammar{
 		},
 		{
 			name: "EOF",
-			pos:  position{line: 34, col: 1, offset: 493},
+			pos:  position{line: 156, col: 1, offset: 3584},
 			expr: &notExpr{
-				pos: position{line: 34, col: 8, offset: 500},
+				pos: position{line: 156, col: 8, offset: 3591},
 				expr: &anyMatcher{
-					line: 34, col: 9, offset: 501,
+					line: 156, col: 9, offset: 3592,
 				},
 			},
 		},
@@ -184,16 +511,177 @@ func (p *parser) callonIntroductoryStmt1() (any, error) {
 	return p.cur.onIntroductoryStmt1(stack["r"])
 }
 
-func (c *current) onReport1(ident any) (any, error) {
+func (c *current) onReport1(ident, ra any) (any, error) {
+	if ra.([]any) == nil {
+		return &ReportStmt{
+			Name: ident.(string),
+		}, nil
+	}
+	additions := toAnySlice[*ReportAdditions](ra)
+	var mainAdditions ReportAdditions
+	var listOptions []*ListOptions
+	for _, a := range additions {
+		if a.ListOptions != nil {
+			listOptions = append(listOptions, a.ListOptions)
+		}
+		if a.MsgID != nil {
+			mainAdditions.MsgID = a.MsgID
+		}
+		if a.ReducedFunctionality != nil {
+			mainAdditions.ReducedFunctionality = a.ReducedFunctionality
+		}
+	}
+	mainAdditions.ListOptions = mergeListOptions(listOptions)
 	return &ReportStmt{
-		Name: ident.(string),
+		Name:      ident.(string),
+		Additions: &mainAdditions,
 	}, nil
 }
 
 func (p *parser) callonReport1() (any, error) {
 	stack := p.vstack[len(p.vstack)-1]
 	_ = stack
-	return p.cur.onReport1(stack["ident"])
+	return p.cur.onReport1(stack["ident"], stack["ra"])
+}
+
+func (c *current) onReportAdditions2(lo any) (any, error) {
+	listOptions := toAnySlice[*ListOptions](lo)
+	var mainListOption ListOptions
+	for _, o := range listOptions {
+		if o.NoStandardPageHeading != nil {
+			mainListOption.NoStandardPageHeading = o.NoStandardPageHeading
+		}
+		if o.LineSize != nil {
+			mainListOption.LineSize = o.LineSize
+		}
+		if o.PageLines != nil {
+			mainListOption.PageLines = o.PageLines
+		}
+		if o.FooterLines != nil {
+			mainListOption.FooterLines = o.FooterLines
+		}
+	}
+	return &ReportAdditions{
+		ListOptions: &mainListOption,
+	}, nil
+}
+
+func (p *parser) callonReportAdditions2() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onReportAdditions2(stack["lo"])
+}
+
+func (c *current) onReportAdditions6(msg any) (any, error) {
+	m := msg.(string)
+	return &ReportAdditions{
+		MsgID: &m,
+	}, nil
+}
+
+func (p *parser) callonReportAdditions6() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onReportAdditions6(stack["msg"])
+}
+
+func (c *current) onMessageID1(ident any) (any, error) {
+	return ident.(string), nil
+}
+
+func (p *parser) callonMessageID1() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onMessageID1(stack["ident"])
+}
+
+func (c *current) onListOptions2(h any) (any, error) {
+	val := true
+	return &ListOptions{
+		NoStandardPageHeading: &val,
+	}, nil
+}
+
+func (p *parser) callonListOptions2() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onListOptions2(stack["h"])
+}
+
+func (c *current) onListOptions7(ls any) (any, error) {
+	val := ls.(int)
+	return &ListOptions{
+		LineSize: &val,
+	}, nil
+}
+
+func (p *parser) callonListOptions7() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onListOptions7(stack["ls"])
+}
+
+func (c *current) onListOptions12(lc any) (any, error) {
+	lineCount := lc.(pageLines)
+	return &ListOptions{
+		PageLines:   lineCount.PageLines,
+		FooterLines: lineCount.FooterLines,
+	}, nil
+}
+
+func (p *parser) callonListOptions12() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onListOptions12(stack["lc"])
+}
+
+func (c *current) onLineCount1(pl, fl any) (any, error) {
+	a := pl.(int)
+	var b *int
+	if fl != nil {
+		val := fl.(int)
+		b = &val
+	}
+	return pageLines{
+		PageLines:   &a,
+		FooterLines: b,
+	}, nil
+}
+
+func (p *parser) callonLineCount1() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onLineCount1(stack["pl"], stack["fl"])
+}
+
+func (c *current) onFooterLine1(d any) (any, error) {
+	return d, nil
+}
+
+func (p *parser) callonFooterLine1() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onFooterLine1(stack["d"])
+}
+
+func (c *current) onLineSize1(d any) (any, error) {
+	return d, nil
+}
+
+func (p *parser) callonLineSize1() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onLineSize1(stack["d"])
+}
+
+func (c *current) onDecimalDigit1() (any, error) {
+	return strconv.Atoi(string(c.text))
+}
+
+func (p *parser) callonDecimalDigit1() (any, error) {
+	stack := p.vstack[len(p.vstack)-1]
+	_ = stack
+	return p.cur.onDecimalDigit1()
 }
 
 func (c *current) onIdent1() (any, error) {

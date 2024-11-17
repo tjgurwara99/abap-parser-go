@@ -1,12 +1,39 @@
 {
 package parser
 
-func toAnySlice(v any) []any {
+func toAnySlice[T any](v any) []T {
     if v == nil {
         return nil
     }
-    return v.([]any)
+    var data []T
+    for _, a := range v.([]any) {
+        data = append(data, a.(T))
+    }
+    return data
 }
+
+func mergeListOptions(opts []*ListOptions) *ListOptions {
+    if opts == nil {
+        return nil
+    }
+    var mainListOption ListOptions
+    for _, o := range opts {
+        if o.NoStandardPageHeading != nil {
+            mainListOption.NoStandardPageHeading = o.NoStandardPageHeading
+        }
+        if o.LineSize != nil {
+            mainListOption.LineSize = o.LineSize
+        }
+        if o.PageLines != nil {
+            mainListOption.PageLines = o.PageLines
+        }
+        if o.FooterLines != nil {
+            mainListOption.FooterLines = o.FooterLines
+        }
+    }
+    return &mainListOption
+}
+
 }
 
 Program <- i:IntroductoryStmt EOF {
@@ -19,10 +46,105 @@ IntroductoryStmt <- r:Report {
     return r.(*ReportStmt), nil
 }
 
-Report <- "REPORT" _ ident:Ident "." {
+Report <- "REPORT" _ ident:Ident ra:ReportAdditions* "." {
+    if ra.([]any) == nil {
+        return &ReportStmt{
+            Name: ident.(string),
+        }, nil
+    }
+    additions := toAnySlice[*ReportAdditions](ra)
+    var mainAdditions ReportAdditions
+    var listOptions []*ListOptions
+    for _, a := range additions {
+        if a.ListOptions != nil {
+            listOptions = append(listOptions, a.ListOptions)
+        }
+        if a.MsgID != nil {
+            mainAdditions.MsgID = a.MsgID
+        }
+        if a.ReducedFunctionality != nil {
+            mainAdditions.ReducedFunctionality = a.ReducedFunctionality
+        }
+    }
+    mainAdditions.ListOptions = mergeListOptions(listOptions)
     return &ReportStmt{
         Name: ident.(string),
+        Additions: &mainAdditions,
     }, nil
+}
+
+ReportAdditions <- lo:ListOptions+ {
+    listOptions := toAnySlice[*ListOptions](lo)
+    var mainListOption ListOptions
+    for _, o := range listOptions {
+        if o.NoStandardPageHeading != nil {
+            mainListOption.NoStandardPageHeading = o.NoStandardPageHeading
+        }
+        if o.LineSize != nil {
+            mainListOption.LineSize = o.LineSize
+        }
+        if o.PageLines != nil {
+            mainListOption.PageLines = o.PageLines
+        }
+        if o.FooterLines != nil {
+            mainListOption.FooterLines = o.FooterLines
+        }
+    }
+    return &ReportAdditions{
+        ListOptions: &mainListOption,
+    }, nil
+} / _ msg:MessageID {
+    m := msg.(string)
+    return &ReportAdditions{
+        MsgID: &m,
+    }, nil
+}
+
+MessageID <- "MESSAGE-ID" _ ident:Ident {
+    return ident.(string), nil
+}
+
+ListOptions <- _ h:"NO STANDARD PAGE HEADING" {
+    val := true
+    return &ListOptions{
+        NoStandardPageHeading: &val,
+    }, nil
+} / _ ls:LineSize {
+    val := ls.(int)
+    return &ListOptions{
+        LineSize: &val,
+    }, nil
+} / _ lc:LineCount {
+    lineCount := lc.(pageLines)
+    return &ListOptions{
+	    PageLines: lineCount.PageLines,
+	    FooterLines: lineCount.FooterLines,
+    }, nil
+}
+
+LineCount <- "LINE-COUNT" _ pl:DecimalDigit _ fl:FooterLine? {
+    a := pl.(int)
+    var b *int
+    if fl != nil {
+        val := fl.(int)
+        b = &val
+    }
+    return pageLines{
+        PageLines: &a,
+        FooterLines: b,
+    }, nil
+}
+
+FooterLine <- "(" d:DecimalDigit ")" {
+    return d, nil
+}
+
+LineSize <- "LINE-SIZE" _ d:DecimalDigit {
+    return d, nil
+}
+
+DecimalDigit <- [1-9] [0-9]* {
+    return strconv.Atoi(string(c.text))
 }
 
 Ident <- [a-zA-Z] [_a-zA-Z0-9]* {
