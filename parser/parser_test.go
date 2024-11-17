@@ -115,6 +115,23 @@ func TestReportParsing(t *testing.T) {
 				},
 			},
 		},
+		{
+			src:  `REPORT ZREPORT LINE-SIZE 132 MESSAGE-ID z_my_messages NO STANDARD PAGE HEADING REDUCED FUNCTIONALITY.`,
+			name: "ZREPORT with line size, message id, no standard page heading and reduced functionality",
+			program: parser.Program{
+				IntroductoryStmt: &parser.ReportStmt{
+					Name: "ZREPORT",
+					Additions: &parser.ReportAdditions{
+						MsgID:                strPtr("z_my_messages"),
+						ReducedFunctionality: boolPtr(true),
+						ListOptions: &parser.ListOptions{
+							LineSize:              intPtr(132),
+							NoStandardPageHeading: boolPtr(true),
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {

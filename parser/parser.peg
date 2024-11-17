@@ -98,6 +98,15 @@ ReportAdditions <- lo:ListOptions+ {
     return &ReportAdditions{
         MsgID: &m,
     }, nil
+} / _ r:ReducedFunctionality {
+    val := r.(bool)
+    return &ReportAdditions{
+        ReducedFunctionality: &val,
+    }, nil
+}
+
+ReducedFunctionality <- "REDUCED FUNCTIONALITY" {
+    return true, nil
 }
 
 MessageID <- "MESSAGE-ID" _ ident:Ident {
